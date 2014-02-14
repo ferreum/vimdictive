@@ -3,7 +3,7 @@
 "       	Israel Chauca F. <israelchauca@gmail.com>
 " Version:	0.1
 " Description:	A dict.org compatible dictionarty & thesaurus browser for Vim
-" Last Change:	2013-07-01
+" Last Change:	2014-02-14
 " License:	Vim License (see :help license)
 " Location:	plugin/vimdictive.vim
 " Website:	https://github.com/dahu/vimdictive
@@ -68,6 +68,7 @@ function! s:PreviewWindow(purpose, term)
   silent! exe "noautocmd botright pedit vimdictive:[" . a:purpose[0] . details . ":'" . a:term . "']"
   noautocmd wincmd P
   setlocal stl=%f\ [%p%%\ line\ %l\ of\ %L]
+  setlocal bufhidden=hide
   setlocal modifiable
   setlocal buftype=nofile ff=unix
   setlocal nobuflisted
