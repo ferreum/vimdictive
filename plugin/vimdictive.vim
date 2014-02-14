@@ -176,6 +176,7 @@ function! s:ReadPreview(purpose, term) abort
   endif
 
   call s:PreviewWindowMaps()
+  silent doautocmd <nomodeline> User vimdictive
 endfunction
 
 " Public Interface: {{{1
