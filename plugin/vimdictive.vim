@@ -98,6 +98,7 @@ function! s:PreviewWindow(purpose, term)
   setlocal nobuflisted
   call s:AddBuffer(bufnr('%'))
   autocmd BufEnter <buffer> call s:AddBuffer(bufnr('%'))
+  autocmd BufReadCmd <buffer> call s:ReadPreview(b:purpose, b:term)
 endfunction
 
 function! s:FilterWith(expression)
@@ -125,7 +126,7 @@ endfunction
 
 function! s:PreviewRefresh()
   if exists('b:purpose')
-    call PreviewTerm(b:purpose, b:term)
+    call s:ReadPreview(b:purpose, b:term)
   endif
 endfunction
 
@@ -138,10 +139,7 @@ function! s:PreviewWindowMaps()
   nnoremap <buffer><silent><f5> :call <SID>PreviewRefresh()<cr>
 endfunction
 
-" Public Interface: {{{1
-
-function! PreviewTerm(purpose, term)
-  call s:PreviewWindow(a:purpose, a:term)
+function! s:ReadPreview(purpose, term) abort
   let b:purpose = a:purpose
   let b:term = a:term
 
@@ -166,6 +164,20 @@ function! PreviewTerm(purpose, term)
   endif
 
   call s:PreviewWindowMaps()
+endfunction
+
+" Public Interface: {{{1
+
+function! PreviewTerm(purpose, term)
+  let term = a:term
+  if empty(term)
+    let term = input('Term: ')
+    if empty(term)
+      return
+    endif
+  endif
+  call s:PreviewWindow(a:purpose, term)
+  call s:ReadPreview(a:purpose, term)
 endfunction
 
 function! PreviewFilter(filter)
