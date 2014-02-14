@@ -56,6 +56,25 @@ function! s:RhymeTerm()
   return get(g:, 'vimdictive_rhyme_term', '')
 endfunction
 
+let s:buffers = []
+function! s:AddBuffer(buffer) abort
+  " add buffer to internal buffer list and remove
+  " buffers according to g:vimdictive_maxbuffers
+  let max = get(g:, 'vimdictive_maxbuffers', 8)
+  if max >= 1
+    call filter(s:buffers, 'v:val != a:buffer')
+    call extend(s:buffers, [a:buffer])
+  else
+    let max = 1
+  endif
+  if len(s:buffers) > max
+    for nr in s:buffers[:(-1 - max)]
+      silent! exe "bunload" nr
+    endfor
+    let s:buffers = s:buffers[(-max):]
+  endif
+endfunction
+
 function! s:PreviewWindow(purpose, term)
   let filter = s:FilterText()
   let filter = empty(filter) ? '' : '/' . filter . '/'
@@ -68,10 +87,17 @@ function! s:PreviewWindow(purpose, term)
   silent! exe "noautocmd botright pedit vimdictive:[" . a:purpose[0] . details . ":'" . a:term . "']"
   noautocmd wincmd P
   setlocal stl=%f\ [%p%%\ line\ %l\ of\ %L]
-  setlocal bufhidden=hide
+  let max = get(g:, 'vimdictive_maxbuffers', 8)
+  if max == 0
+    setlocal bufhidden=unload
+  else
+    setlocal bufhidden=hide
+  endif
   setlocal modifiable
   setlocal buftype=nofile ff=unix
   setlocal nobuflisted
+  call s:AddBuffer(bufnr('%'))
+  autocmd BufEnter <buffer> call s:AddBuffer(bufnr('%'))
 endfunction
 
 function! s:FilterWith(expression)
