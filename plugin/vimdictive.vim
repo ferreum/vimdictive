@@ -130,13 +130,25 @@ function! s:PreviewRefresh()
   endif
 endfunction
 
+function! <SID>GetSelection() abort
+  let view = winsaveview()
+  let tmp = @@
+  normal! gv""y
+  let res = @@
+  let @@ = tmp
+  call winrestview(view)
+  return res
+endfunction
+
 function! s:PreviewWindowMaps()
-  nnoremap <buffer><silent> q :bw!<cr>
+  nnoremap <buffer><silent> q :<C-U>bw!<cr>
   nnoremap <buffer><silent><enter>
-        \ :call PreviewTerm('Meanings', expand('<cword>'))<cr>
+        \ :<C-U>call PreviewTerm('Meanings', expand('<cword>'))<cr>
   nnoremap <buffer><silent><bs>
-        \ :call PreviewTerm('Synonyms', expand('<cword>'))<cr>
+        \ :<C-U>call PreviewTerm('Synonyms', expand('<cword>'))<cr>
   nnoremap <buffer><silent><f5> :call <SID>PreviewRefresh()<cr>
+  xnoremap <buffer><silent><enter>
+        \ :<C-U>call PreviewTerm('Meanings', <SID>GetSelection())<cr>
 endfunction
 
 function! s:ReadPreview(purpose, term) abort
@@ -202,10 +214,14 @@ endfunction
 
 " Maps: {{{1
 nnoremap <silent> <Plug>vimdictive_meanings
-      \ :silent call PreviewTerm('Meanings', expand('<cword>'))<CR>
+      \ :<C-U>silent call PreviewTerm('Meanings', expand('<cword>'))<CR>
+vnoremap <silent> <Plug>vimdictive_meanings
+      \ :<C-U>silent call PreviewTerm('Meanings', <SID>GetSelection())<CR>
 
 nnoremap <silent> <Plug>vimdictive_synonyms
-      \ :silent call PreviewTerm('Synonyms', expand('<cword>'))<CR>
+      \ :<C-U>silent call PreviewTerm('Synonyms', expand('<cword>'))<CR>
+vnoremap <silent> <Plug>vimdictive_synonyms
+      \ :<C-U>silent call PreviewTerm('Synonyms', <SID>GetSelection())<CR>
 
 nnoremap <silent> <Plug>vimdictive_filter :call PreviewFilter('')<CR>
 
@@ -213,10 +229,12 @@ nnoremap <silent> <Plug>vimdictive_filter_rhyme :call PreviewRhyme('')<CR>
 
 if !hasmapto('<Plug>vimdictive_meanings')
   silent! nmap <unique><silent> <leader>dm <Plug>vimdictive_meanings
+  silent! xmap <unique><silent> <leader>dm <Plug>vimdictive_meanings
 endif
 
 if !hasmapto('<Plug>vimdictive_synonyms')
   silent! nmap <unique><silent> <leader>ds <Plug>vimdictive_synonyms
+  silent! xmap <unique><silent> <leader>ds <Plug>vimdictive_synonyms
 endif
 
 if !hasmapto('<Plug>vimdictive_filter')
