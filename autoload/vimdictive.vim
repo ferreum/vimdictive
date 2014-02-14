@@ -3,7 +3,7 @@
 "       	Israel Chauca F. <israelchauca@gmail.com>
 " Version:	0.1
 " Description:	Long description.
-" Last Change:	2013-07-01
+" Last Change:	2014-02-14
 " License:	Vim License (see :help license)
 " Location:	autoload/vimdictive.vim
 " Website:	https://github.com/dahu/vimdictive
@@ -101,7 +101,8 @@ function! vimdictive#lookup(dictionary, term, strategy)
   let curl_cmd = get(g:, 'dict_curl_command', 'curl')
   let curl_opts = get(g:, 'dict_curl_options', '')
   for db in host[1]
-    let r = system(curl_cmd . ' -s ' . curl_opts . ' dict://' . host[0] . '/' . strategy . ':"' . a:term . '":' . db)
+    let url = 'dict://' . host[0] . '/' . strategy . ':"' . a:term . '":' . db
+    let r = system(curl_cmd . ' -s ' . curl_opts . ' ' . shellescape(url))
     let result = s:uncurl(r, a:term, db, strategy)
     call add(results, result)
   endfor
